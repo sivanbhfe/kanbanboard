@@ -27,6 +27,26 @@ addCard = () =>{
   newcards})
 
 
+  let notidata = JSON.stringify({
+    "id": 1,
+    "title": "title",
+    "status": "status"
+      });
+
+
+  let xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function(){
+    if (this.readyState === 4 && this.status === 200) {
+      // Typical action to be performed when the document is ready:
+      alert(xhr.responseText);
+     }
+  };
+  
+  xhr.open("POST", "http://localhost:8080/addcard");
+  xhr.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+  xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
+  xhr.send(notidata);
+
  }
 // END Adding a card
 

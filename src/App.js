@@ -14,9 +14,7 @@ constructor () {
 super();
 this.state = {
   cards:[
-    {id:1,card:'card1',status:'todo'},
-    {id:2,card:'card2', status:'todo'},
-    {id:3,card:'card3', status:'todo'}
+   
   ]
 }
 }
@@ -28,6 +26,8 @@ addCard = () =>{
  this.setState({
   ...this.state,
   newcards})
+
+
  }
 // END Adding a card
 
@@ -66,8 +66,6 @@ onCardToDoDrop = (event,id) => {
       return card;
     }
       );
-
-      localStorage.setItem("cardsData",cards);
       this.setState({
         ...this.state, 
         cards
@@ -97,10 +95,6 @@ onCardDragOver = (e) => {
   e.preventDefault();
   }
 //Dropping a card
-
-componentDidMount(){
-  localStorage.setItem.cardsData="";
-}
 
 render () {
 

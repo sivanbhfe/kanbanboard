@@ -9,7 +9,6 @@ import AddIcon from '@material-ui/icons/Add';
 
 
 class App extends Component {
-
 constructor () {
 super();
 this.state = {

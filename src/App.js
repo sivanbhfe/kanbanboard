@@ -20,33 +20,30 @@ this.state = {
 
 // START Adding a card
 addCard = () =>{
- let newid = this.state.cards.length+1;
- let newcards = this.state.cards.push({id:newid,card:'New card',status:'todo'});
- this.setState({
-  ...this.state,
-  newcards})
-
+ 
 
   let notidata = JSON.stringify({
-    "id": 1,
+    "id": 0,
     "title": "title",
-    "status": "status"
+    "status": "todo"
       });
 
-
+   let that = this;
   let xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function(){
     if (this.readyState === 4 && this.status === 200) {
       // Typical action to be performed when the document is ready:
-      alert(xhr.responseText);
+     var allcards = JSON.parse(xhr.responseText).filter(card => {return card});
+     that.setState(
+       {
+         cards:allcards
+       });
      }
-  };
-  
+  } 
   xhr.open("POST", "http://localhost:8080/addcard");
   xhr.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
   xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
   xhr.send(notidata);
-
  }
 // END Adding a card
 
@@ -58,62 +55,103 @@ onDragStart = (event,id) => {
 
 //Dropping a card
 onCardProgressDrop = (event,id) => {
+  let dummy = null;
   let cardid = event.dataTransfer.getData("id")
   alert(event.dataTransfer.getData("id"));
-    let cards = this.state.cards.filter(card =>
-      {if(card.id==cardid){
-        card.status='inprogress'
-      }
-      return card;
-    }
-      );
+   
+  let that = this;
+  let xhrtoprogress = new XMLHttpRequest();
+  xhrtoprogress.onreadystatechange = function() {
+    if(this.readyState===4 && this.status===200){
+      var allcards = JSON.parse(xhrtoprogress.responseText);
+      that.setState(
+        {
+          cards:allcards
+        });
 
-      this.setState({
-        ...this.state, 
-        cards
-      });
+    }
+
+  };
+  xhrtoprogress.open("GET","http://localhost:8080/toprogress/"+cardid);
+  xhrtoprogress.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+  xhrtoprogress.setRequestHeader('Access-Control-Allow-Origin', '*');
+  xhrtoprogress.send(dummy);
 
 };
 
 onCardToDoDrop = (event,id) => {
+  let dummy = null;
   let cardid = event.dataTransfer.getData("id")
   alert(event.dataTransfer.getData("id"));
-    let cards = this.state.cards.filter(card =>
-      {if(card.id==cardid){
-        card.status='todo'
-      }
-      return card;
-    }
-      );
-      this.setState({
-        ...this.state, 
-        cards
-      });
+  let that = this;
+  let xhrtodo = new XMLHttpRequest();
+  xhrtodo.onreadystatechange = function() {
+    if(this.readyState===4 && this.status===200){
+      var allcards = JSON.parse(xhrtodo.responseText);
+      that.setState(
+        {
+          cards:allcards
+        });
 
+    }
+
+  };
+  xhrtodo.open("GET","http://localhost:8080/todo/"+cardid);
+  xhrtodo.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+  xhrtodo.setRequestHeader('Access-Control-Allow-Origin', '*');
+  xhrtodo.send(dummy);
 };
 
 onCardDoneDrop = (event,id) => {
+  let dummy = null;
   let cardid = event.dataTransfer.getData("id")
   alert(event.dataTransfer.getData("id"));
-    let cards = this.state.cards.filter(card =>
-      {if(card.id==cardid){
-        card.status='done'
-      }
-      return card;
+   
+  let that = this;
+  let xhrtodone = new XMLHttpRequest();
+  xhrtodone.onreadystatechange = function() {
+    if(this.readyState===4 && this.status===200){
+      var allcards = JSON.parse(xhrtodone.responseText);
+      that.setState(
+        {
+          cards:allcards
+        });
+
     }
-      );
 
-      this.setState({
-        ...this.state, 
-        cards
-      });
-
+  };
+  xhrtodone.open("GET","http://localhost:8080/todone/"+cardid);
+  xhrtodone.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+  xhrtodone.setRequestHeader('Access-Control-Allow-Origin', '*');
+  xhrtodone.send(dummy);
 };
 
 onCardDragOver = (e) => {
   e.preventDefault();
   }
 //Dropping a card
+
+componentWillMount() {
+  let dummy = null;
+  let that = this;
+  let xhrlistall = new XMLHttpRequest();
+  xhrlistall.onreadystatechange = function() {
+    if(this.readyState===4 && this.status===200){
+      var allcards = JSON.parse(xhrlistall.responseText);
+      that.setState(
+        {
+          cards:allcards
+        });
+
+    }
+
+  };
+  xhrlistall.open("GET","http://localhost:8080/listall/");
+  xhrlistall.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+  xhrlistall.setRequestHeader('Access-Control-Allow-Origin', '*');
+  xhrlistall.send(dummy);
+};
+
 
 render () {
 
@@ -130,7 +168,7 @@ return (
     {this.state.cards.filter(card => card.status==='todo').map(matchcard =>
        <Card  key={matchcard.id} onDragStart={(event) => this.onDragStart(event, matchcard.id)} draggable style={{fontWeight:'bold',fontFamily:'calibri',margin:'5px'}} >
       <CardContent>
-    <Typography style={{fontWeight:'bold'}}>{matchcard.card}</Typography>
+    <Typography style={{fontWeight:'bold'}}>{matchcard.title}</Typography>
       </CardContent>
       <CardActions>
       <Select value="todo"className="statusselector">
@@ -150,7 +188,7 @@ return (
     
        <Card  key={matchcard.id} onDragStart={(event) => this.onDragStart(event, matchcard.id)} draggable style={{fontWeight:'bold',fontFamily:'calibri',margin:'5px'}} >
       <CardContent>
-    <Typography style={{fontWeight:'bold'}}>{matchcard.card}</Typography>
+    <Typography style={{fontWeight:'bold'}}>{matchcard.title}</Typography>
       </CardContent>
       <CardActions>
       <Select value="inprogress" className="statusselector">
@@ -168,7 +206,7 @@ return (
     
     <Card  key={matchcard.id} onDragStart={(event) => this.onDragStart(event, matchcard.id)} draggable style={{fontWeight:'bold',fontFamily:'calibri',margin:'5px'}} >
    <CardContent>
- <Typography style={{fontWeight:'bold'}}>{matchcard.card}</Typography>
+ <Typography style={{fontWeight:'bold'}}>{matchcard.title}</Typography>
    </CardContent>
    <CardActions>
    <Select value="done" className="statusselector">

@@ -4,7 +4,7 @@ import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Select from '@material-ui/core/Select';
-import { MenuItem, Typography, makeStyles } from '@material-ui/core';
+import { MenuItem, Button, Typography, makeStyles, TextField, ClickAwayListener } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 
 
@@ -51,7 +51,52 @@ addCard = () =>{
 onDragStart = (event,id) => {
   event.dataTransfer.setData("id",id)
 }
-// END Dragging a card
+// END Dragging a 
+
+onTempTitleUpdate=(event,id)=>{
+let den = event.target.value
+let cards = this.state.cards.filter((card)=> {
+  if(card.id===id){
+    card.title=den
+  }
+  return card;
+})
+this.setState({
+  ...this.state,
+  cards
+});
+}
+
+onUpdate= (event, id) => {
+
+  let cardid = id;
+  let cardtitle = document.getElementById(id+"title").value;
+
+  let dummy = JSON.stringify({
+    "id":cardid,
+    "title":cardtitle
+  });
+  alert(document.getElementById(id+"title").value)
+  alert(cardid);
+   
+  let that = this;
+  let xhrtitleupdate = new XMLHttpRequest();
+  xhrtitleupdate.onreadystatechange = function() {
+    if(this.readyState===4 && this.status===200){
+      var allcards = JSON.parse(xhrtitleupdate.responseText);
+      that.setState(
+        {
+          cards:allcards
+        });
+
+    }
+
+  };
+  xhrtitleupdate.open("POST","http://localhost:8080/updatetitle/");
+  xhrtitleupdate.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+  xhrtitleupdate.setRequestHeader('Access-Control-Allow-Origin', '*');
+  xhrtitleupdate.send(dummy);
+}
 
 //Dropping a card
 onCardProgressDrop = (event,id) => {
@@ -166,9 +211,11 @@ return (
   <div className="ToDo" onDragOver = {this.onCardDragOver} onDrop={(event)=>this.onCardToDoDrop(event,"")} >
     <h2 className="head">To Do</h2> <span><AddIcon cursor ="pointer" onClick={this.addCard}/></span>
     {this.state.cards.filter(card => card.status==='todo').map(matchcard =>
-       <Card  key={matchcard.id} onDragStart={(event) => this.onDragStart(event, matchcard.id)} draggable style={{fontWeight:'bold',fontFamily:'calibri',margin:'5px'}} >
+       <Card  key={matchcard.id}  onDragStart={(event) => this.onDragStart(event, matchcard.id)} draggable style={{fontWeight:'bold',fontFamily:'calibri',margin:'5px'}} >
       <CardContent>
     <Typography style={{fontWeight:'bold'}}>{matchcard.title}</Typography>
+    <TextField id={matchcard.id+"title"} onChange={(event)=>this.onTempTitleUpdate(event,matchcard.id)} 
+    value={matchcard.title} label="Add task"></TextField>
       </CardContent>
       <CardActions>
       <Select value="todo"className="statusselector">
@@ -176,9 +223,10 @@ return (
         <MenuItem value={'inprogress'}>In Progress</MenuItem>
         <MenuItem value={'done'}>Done</MenuItem>
         </Select>
+        <Button style={{marginLeft:"60%"}}onClick={(event)=>this.onUpdate(event,matchcard.id)}>Update</Button>
       </CardActions>
     </Card>)
-     };
+     }; 
   </div>
   <div onDragOver = {this.onCardDragOver} onDrop={(event)=>this.onCardProgressDrop(event,"")} 
   className="inProgress" >
@@ -188,7 +236,8 @@ return (
     
        <Card  key={matchcard.id} onDragStart={(event) => this.onDragStart(event, matchcard.id)} draggable style={{fontWeight:'bold',fontFamily:'calibri',margin:'5px'}} >
       <CardContent>
-    <Typography style={{fontWeight:'bold'}}>{matchcard.title}</Typography>
+      <TextField id={matchcard.id+"title"} onChange={(event)=>this.onTempTitleUpdate(event,matchcard.id)} 
+    value={matchcard.title} label="Add task"></TextField>
       </CardContent>
       <CardActions>
       <Select value="inprogress" className="statusselector">
@@ -196,6 +245,7 @@ return (
         <MenuItem value={'inprogress'}>In Progress</MenuItem>
         <MenuItem value={'done'}>Done</MenuItem>
         </Select>
+        <Button style={{marginLeft:"60%"}}onClick={(event)=>this.onUpdate(event,matchcard.id)}>Update</Button>
       </CardActions>
     </Card>))}
 
@@ -206,7 +256,8 @@ return (
     
     <Card  key={matchcard.id} onDragStart={(event) => this.onDragStart(event, matchcard.id)} draggable style={{fontWeight:'bold',fontFamily:'calibri',margin:'5px'}} >
    <CardContent>
- <Typography style={{fontWeight:'bold'}}>{matchcard.title}</Typography>
+   <TextField id={matchcard.id+"title"} onChange={(event)=>this.onTempTitleUpdate(event,matchcard.id)} 
+    value={matchcard.title} label="Add task"></TextField>
    </CardContent>
    <CardActions>
    <Select value="done" className="statusselector">
@@ -214,6 +265,7 @@ return (
      <MenuItem value={'inprogress'}>In Progress</MenuItem>
      <MenuItem value={'done'}>Done</MenuItem>
      </Select>
+     <Button style={{marginLeft:"60%"}}onClick={(event)=>this.onUpdate(event,matchcard.id)}>Update</Button>
    </CardActions>
  </Card>))}
   </div>

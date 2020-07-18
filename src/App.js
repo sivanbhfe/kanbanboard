@@ -6,6 +6,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Select from '@material-ui/core/Select';
 import { MenuItem, Button, Typography, makeStyles, TextField, ClickAwayListener } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
+import $ from 'jquery';
 
 
 class App extends Component {
@@ -197,6 +198,10 @@ componentWillMount() {
   xhrlistall.send(dummy);
 };
 
+componentDidMount() {
+
+
+};
 
 render () {
 

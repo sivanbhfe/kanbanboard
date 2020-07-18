@@ -13,9 +13,10 @@ class App extends Component {
 constructor () {
 super();
 this.state = {
-  cards:[
-   
-  ]
+  cards:[],
+  numOfToDo:0,
+  numOfInProgress:0,
+  numOfDone:0
 }
 }
 
@@ -184,9 +185,29 @@ componentWillMount() {
   xhrlistall.onreadystatechange = function() {
     if(this.readyState===4 && this.status===200){
       var allcards = JSON.parse(xhrlistall.responseText);
+      let numOfToDo=0;
+      let numOfInProgress=0;
+      let numOfDone=0;
+
+      let temp = allcards.filter(card => {
+        if(card.status==="todo"){
+          numOfToDo++;
+        }
+        if(card.status==="inprogress"){
+          numOfInProgress++;
+        }
+        if(card.status==="done"){
+          numOfDone++;
+        }
+      });
+
+
       that.setState(
         {
-          cards:allcards
+          cards:allcards,
+          numOfToDo:numOfToDo,
+          numOfInProgress:numOfInProgress,
+          numOfDone:numOfDone
         });
 
     }
@@ -196,6 +217,11 @@ componentWillMount() {
   xhrlistall.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
   xhrlistall.setRequestHeader('Access-Control-Allow-Origin', '*');
   xhrlistall.send(dummy);
+  
+
+
+ 
+
 };
 
 componentDidMount() {
@@ -214,7 +240,8 @@ return (
   </div>
   <div className="lanes">
   <div className="ToDo" onDragOver = {this.onCardDragOver} onDrop={(event)=>this.onCardToDoDrop(event,"")} >
-    <h2 className="head">To Do</h2> <span><AddIcon cursor ="pointer" onClick={this.addCard}/></span>
+<h2 className="head">To Do<span className="todotaskcount"> {this.state.numOfToDo} Tasks</span></h2> <span><AddIcon cursor ="pointer" onClick={this.addCard}/></span>
+
     {this.state.cards.filter(card => card.status==='todo').map(matchcard =>
        <Card  key={matchcard.id}  onDragStart={(event) => this.onDragStart(event, matchcard.id)} draggable style={{fontWeight:'bold',fontFamily:'calibri',margin:'5px'}} >
       <CardContent>
@@ -235,7 +262,7 @@ return (
   </div>
   <div onDragOver = {this.onCardDragOver} onDrop={(event)=>this.onCardProgressDrop(event,"")} 
   className="inProgress" >
-    <h2 className="head">In Progress</h2>
+    <h2 className="head">In Progress<span className="inprogresstaskcount"> {this.state.numOfInProgress} Tasks</span></h2>
   
     {this.state.cards.filter(card => card.status ==='inprogress').map(matchcard => (
     
@@ -256,7 +283,7 @@ return (
 
   </div>
   <div onDragOver = {this.onCardDragOver} onDrop={(event)=>this.onCardDoneDrop(event,"")} className="Done">
-    <h2 className="head">Done</h2>
+    <h2 className="head">Done<span className="donetaskcount"> {this.state.numOfDone} Tasks</span></h2>
     {this.state.cards.filter(card => card.status ==='done').map(matchcard => (
     
     <Card  key={matchcard.id} onDragStart={(event) => this.onDragStart(event, matchcard.id)} draggable style={{fontWeight:'bold',fontFamily:'calibri',margin:'5px'}} >

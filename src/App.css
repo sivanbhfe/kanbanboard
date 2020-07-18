@@ -19,6 +19,15 @@
   padding: 0;
   background-color: #CCCCCC;
 }
+.todotaskcount {
+  color: blue;
+}
+.inprogresstaskcount {
+  color: orangered;
+}
+.donetaskcount {
+  color: green;
+}
 
 .lanes {
   text-align: center;

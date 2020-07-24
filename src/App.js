@@ -22,11 +22,9 @@ this.state = {
 
 // START Adding a card
 addCard = () =>{
- 
-
   let notidata = JSON.stringify({
     "id": 0,
-    "title": "title",
+    "title": "",
     "status": "todo"
       });
 
@@ -46,6 +44,8 @@ addCard = () =>{
   xhr.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
   xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
   xhr.send(notidata);
+
+  window.location.reload();
  }
 // END Adding a card
 
@@ -78,9 +78,6 @@ onUpdate= (event, id) => {
     "id":cardid,
     "title":cardtitle
   });
-  alert(document.getElementById(id+"title").value)
-  alert(cardid);
-   
   let that = this;
   let xhrtitleupdate = new XMLHttpRequest();
   xhrtitleupdate.onreadystatechange = function() {
@@ -100,12 +97,39 @@ onUpdate= (event, id) => {
   xhrtitleupdate.send(dummy);
 }
 
-//Dropping a card
+
+//START Delete a card
+onDelete= (event, id) => {
+
+  let cardid = id;
+
+  let dummy = JSON.stringify({
+    "id":cardid
+  });   
+  let that = this;
+  let xhrdeletecard = new XMLHttpRequest();
+  xhrdeletecard.onreadystatechange = function() {
+    if(this.readyState===4 && this.status===200){
+      var allcards = JSON.parse(xhrdeletecard.responseText);
+      that.setState(
+        {
+          cards:allcards
+        });
+    }
+
+  };
+  xhrdeletecard.open("DELETE","http://localhost:8080/deletecard/"+cardid);
+  xhrdeletecard.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+  xhrdeletecard.setRequestHeader('Access-Control-Allow-Origin', '*');
+  xhrdeletecard.send(dummy);
+  window.location.reload();
+}
+//END Delete a card
+
+//START Dropping a card
 onCardProgressDrop = (event,id) => {
   let dummy = null;
-  let cardid = event.dataTransfer.getData("id")
-  alert(event.dataTransfer.getData("id"));
-   
+  let cardid = event.dataTransfer.getData("id")   
   let that = this;
   let xhrtoprogress = new XMLHttpRequest();
   xhrtoprogress.onreadystatechange = function() {
@@ -123,13 +147,12 @@ onCardProgressDrop = (event,id) => {
   xhrtoprogress.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
   xhrtoprogress.setRequestHeader('Access-Control-Allow-Origin', '*');
   xhrtoprogress.send(dummy);
-
+  window.location.reload();
 };
 
 onCardToDoDrop = (event,id) => {
   let dummy = null;
   let cardid = event.dataTransfer.getData("id")
-  alert(event.dataTransfer.getData("id"));
   let that = this;
   let xhrtodo = new XMLHttpRequest();
   xhrtodo.onreadystatechange = function() {
@@ -147,13 +170,12 @@ onCardToDoDrop = (event,id) => {
   xhrtodo.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
   xhrtodo.setRequestHeader('Access-Control-Allow-Origin', '*');
   xhrtodo.send(dummy);
+  window.location.reload();
 };
 
 onCardDoneDrop = (event,id) => {
   let dummy = null;
-  let cardid = event.dataTransfer.getData("id")
-  alert(event.dataTransfer.getData("id"));
-   
+  let cardid = event.dataTransfer.getData("id")   
   let that = this;
   let xhrtodone = new XMLHttpRequest();
   xhrtodone.onreadystatechange = function() {
@@ -171,12 +193,13 @@ onCardDoneDrop = (event,id) => {
   xhrtodone.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
   xhrtodone.setRequestHeader('Access-Control-Allow-Origin', '*');
   xhrtodone.send(dummy);
+  window.location.reload();
 };
 
 onCardDragOver = (e) => {
   e.preventDefault();
   }
-//Dropping a card
+//END Dropping a card
 
 componentWillMount() {
   let dummy = null;
@@ -217,22 +240,13 @@ componentWillMount() {
   xhrlistall.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
   xhrlistall.setRequestHeader('Access-Control-Allow-Origin', '*');
   xhrlistall.send(dummy);
-  
-
-
- 
-
 };
 
 componentDidMount() {
-
-
 };
 
 render () {
-
-return (
-   
+return (   
 <div className="boardContainer">
   <div className="pageHeading">
     <h2 className="head">My own Kanban Board</h2>
@@ -244,18 +258,13 @@ return (
 
     {this.state.cards.filter(card => card.status==='todo').map(matchcard =>
        <Card  key={matchcard.id}  onDragStart={(event) => this.onDragStart(event, matchcard.id)} draggable style={{fontWeight:'bold',fontFamily:'calibri',margin:'5px'}} >
-      <CardContent>
-    <Typography style={{fontWeight:'bold'}}>{matchcard.title}</Typography>
-    <TextField id={matchcard.id+"title"} onChange={(event)=>this.onTempTitleUpdate(event,matchcard.id)} 
-    value={matchcard.title} label="Add task"></TextField>
+      <CardContent >
+    <TextField style={{width:"100%"}} id={matchcard.id+"title"} onChange={(event)=>this.onTempTitleUpdate(event,matchcard.id)} 
+    value={matchcard.title} variant="outlined" ></TextField>
       </CardContent>
       <CardActions>
-      <Select value="todo"className="statusselector">
-        <MenuItem value={'todo'}>To Do</MenuItem>
-        <MenuItem value={'inprogress'}>In Progress</MenuItem>
-        <MenuItem value={'done'}>Done</MenuItem>
-        </Select>
-        <Button style={{marginLeft:"60%"}}onClick={(event)=>this.onUpdate(event,matchcard.id)}>Update</Button>
+        <Button color="primary" variant="contained" style={{marginLeft:"30%"}}onClick={(event)=>this.onUpdate(event,matchcard.id)}>Update</Button>
+        <Button color="secondary" variant="contained" onClick={(event)=>this.onDelete(event,matchcard.id)}>Delete</Button>
       </CardActions>
     </Card>)
      }; 
@@ -268,16 +277,12 @@ return (
     
        <Card  key={matchcard.id} onDragStart={(event) => this.onDragStart(event, matchcard.id)} draggable style={{fontWeight:'bold',fontFamily:'calibri',margin:'5px'}} >
       <CardContent>
-      <TextField id={matchcard.id+"title"} onChange={(event)=>this.onTempTitleUpdate(event,matchcard.id)} 
-    value={matchcard.title} label="Add task"></TextField>
+      <TextField style={{width:"100%"}} id={matchcard.id+"title"} onChange={(event)=>this.onTempTitleUpdate(event,matchcard.id)} 
+    value={matchcard.title} variant="outlined"></TextField>
       </CardContent>
       <CardActions>
-      <Select value="inprogress" className="statusselector">
-        <MenuItem value={'todo'}>To Do</MenuItem>
-        <MenuItem value={'inprogress'}>In Progress</MenuItem>
-        <MenuItem value={'done'}>Done</MenuItem>
-        </Select>
-        <Button style={{marginLeft:"60%"}}onClick={(event)=>this.onUpdate(event,matchcard.id)}>Update</Button>
+      <Button color="primary" variant="contained" style={{marginLeft:"30%"}}onClick={(event)=>this.onUpdate(event,matchcard.id)}>Update</Button>
+        <Button color="secondary" variant="contained" onClick={(event)=>this.onDelete(event,matchcard.id)}>Delete</Button>
       </CardActions>
     </Card>))}
 
@@ -288,16 +293,12 @@ return (
     
     <Card  key={matchcard.id} onDragStart={(event) => this.onDragStart(event, matchcard.id)} draggable style={{fontWeight:'bold',fontFamily:'calibri',margin:'5px'}} >
    <CardContent>
-   <TextField id={matchcard.id+"title"} onChange={(event)=>this.onTempTitleUpdate(event,matchcard.id)} 
-    value={matchcard.title} label="Add task"></TextField>
+   <TextField style={{width:"100%"}}  id={matchcard.id+"title"} onChange={(event)=>this.onTempTitleUpdate(event,matchcard.id)} 
+    value={matchcard.title} variant="outlined"></TextField>
    </CardContent>
    <CardActions>
-   <Select value="done" className="statusselector">
-     <MenuItem value={'todo'}>To Do</MenuItem>
-     <MenuItem value={'inprogress'}>In Progress</MenuItem>
-     <MenuItem value={'done'}>Done</MenuItem>
-     </Select>
-     <Button style={{marginLeft:"60%"}}onClick={(event)=>this.onUpdate(event,matchcard.id)}>Update</Button>
+   <Button color="primary" variant="contained" style={{marginLeft:"30%"}}onClick={(event)=>this.onUpdate(event,matchcard.id)}>Update</Button>
+        <Button color="secondary" variant="contained" onClick={(event)=>this.onDelete(event,matchcard.id)}>Delete</Button>
    </CardActions>
  </Card>))}
   </div>
